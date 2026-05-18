@@ -947,15 +947,15 @@ body {
 .bk-team {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 0;
+  gap: 6px;
+  padding: 4px 0;
 }
-.bk-abbr {
-  font-family: var(--font-display);
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  min-width: 26px;
-  color: var(--text);
+.bk-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 3px rgba(0,0,0,0.5));
 }
 .bk-name {
   font-size: 9px;

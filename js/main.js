@@ -513,6 +513,17 @@ function renderResults() {
 /* ════════════════════════════════
    PLAYOFFS BRACKET
 ════════════════════════════════ */
+const TEAM_LOGOS = {
+  OKC: 'okc', PHX: 'phx', LAL: 'lal', HOU: 'hou',
+  SAS: 'sa',  POR: 'por', MIN: 'min', DEN: 'den',
+  DET: 'det', ORL: 'orl', CLE: 'cle', TOR: 'tor',
+  NYK: 'ny',  ATL: 'atl', PHI: 'phi', BOS: 'bos',
+};
+function teamLogo(abbr) {
+  const id = TEAM_LOGOS[abbr];
+  return id ? `<img class="bk-logo" src="https://a.espncdn.com/i/teamlogos/nba/500/${id}.png" alt="${abbr}" loading="lazy">` : '';
+}
+
 const PLAYOFF_DATA = {
   west: {
     r1: [
@@ -547,7 +558,7 @@ function _bkTeamRow(abbr, name, score, isWinner, done) {
   const spurs = abbr === 'SAS' ? ' bk-spurs' : '';
   const sc = done ? score : '–';
   return `<div class="bk-team ${wc}${spurs}">
-    <span class="bk-abbr">${abbr}</span>
+    ${teamLogo(abbr)}
     <span class="bk-name">${name}</span>
     <span class="bk-score">${sc}</span>
   </div>`;

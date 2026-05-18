@@ -425,16 +425,28 @@ function renderResults() {
   const avgPts = games.length ? (games.reduce((s, g) => s + g.pts, 0) / games.length).toFixed(1) : '—';
   const avgReb = games.length ? (games.reduce((s, g) => s + g.reb, 0) / games.length).toFixed(1) : '—';
   const avgBlk = games.length ? (games.reduce((s, g) => s + g.blk, 0) / games.length).toFixed(1) : '—';
+  const allGamesCount = (DATA.game_logs[currentSeason] || []).length;
 
-  document.getElementById('rs-gp').textContent = games.length;
+  document.getElementById('rs-gp').textContent = allGamesCount || '—';
   document.getElementById('rs-w').textContent  = wins;
   document.getElementById('rs-l').textContent  = losses;
   document.getElementById('rs-ppg').textContent = avgPts;
   document.getElementById('rs-rpg').textContent = avgReb;
   document.getElementById('rs-bpg').textContent = avgBlk;
 
+  const allGames = DATA.game_logs[currentSeason] || [];
+  if (!allGames.length) {
+    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:48px">
+      <div style="font-family:var(--font-display);font-size:12px;letter-spacing:2px;color:var(--purple-light);margin-bottom:10px">CHARGEMENT EN COURS</div>
+      <div style="font-size:13px;color:var(--gray);max-width:400px;margin:0 auto;line-height:1.6">
+        Les données exactes match par match sont récupérées automatiquement via l'API BallDontLie.<br>
+        <span style="color:var(--cyan)">Mise à jour ce soir à 22h00.</span>
+      </div>
+    </td></tr>`;
+    return;
+  }
   if (!games.length) {
-    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:40px;color:#6b7280">Aucun match trouvé</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:40px;color:#6b7280">Aucun match trouvé pour ce filtre</td></tr>';
     return;
   }
 

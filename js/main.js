@@ -631,11 +631,14 @@ function renderSpurs() {
   renderSpursBilanChart();
 }
 
+const POS_FULL = { PG: 'Meneur', SG: 'Arrière', SF: 'Ailier', PF: 'Ailier Fort', C: 'Pivot' };
+
 function renderSpursRoster() {
   const el = document.getElementById('spurs-roster');
   if (!el) return;
   const roster = DATA.spurs.roster;
   const wemby  = roster.find(p => p.highlight);
+  const wStats = DATA.career_averages.find(s => s.season === '2025-26') || DATA.career_averages.at(-1);
   const others = roster.filter(p => !p.highlight);
 
   el.innerHTML = `
@@ -643,13 +646,14 @@ function renderSpursRoster() {
       <div class="sr-wemby-num">#${wemby.number}</div>
       <div class="sr-wemby-info">
         <div class="sr-wemby-name">${wemby.name}</div>
-        <div class="sr-wemby-pos">${wemby.pos}</div>
+        <div class="sr-wemby-pos">${POS_FULL[wemby.pos] || wemby.pos} · ${wemby.height} · ${wemby.weight} kg</div>
+        <div class="sr-wemby-age">${wemby.age} ans</div>
       </div>
       <div class="sr-wemby-stats">
-        <div class="sr-stat"><span class="sr-val">${wemby.ppg}</span><span class="sr-lbl">PPG</span></div>
-        <div class="sr-stat"><span class="sr-val">${wemby.rpg}</span><span class="sr-lbl">RPG</span></div>
-        <div class="sr-stat"><span class="sr-val">${wemby.apg}</span><span class="sr-lbl">APG</span></div>
-        <div class="sr-stat"><span class="sr-val">${wemby.bpg}</span><span class="sr-lbl">BPG</span></div>
+        <div class="sr-stat"><span class="sr-val">${wStats.ppg}</span><span class="sr-lbl">PPG</span></div>
+        <div class="sr-stat"><span class="sr-val">${wStats.rpg}</span><span class="sr-lbl">RPG</span></div>
+        <div class="sr-stat"><span class="sr-val">${wStats.apg}</span><span class="sr-lbl">APG</span></div>
+        <div class="sr-stat"><span class="sr-val">${wStats.bpg}</span><span class="sr-lbl">BPG</span></div>
       </div>
     </div>
     <div class="sr-grid">
@@ -658,12 +662,12 @@ function renderSpursRoster() {
           <span class="sr-num">#${p.number}</span>
           <div class="sr-info">
             <div class="sr-pname">${p.name}</div>
-            <div class="sr-ppos">${p.pos}</div>
+            <div class="sr-ppos">${POS_FULL[p.pos] || p.pos}</div>
           </div>
           <div class="sr-mini-stats">
-            <span>${p.ppg} PPG</span>
-            <span>${p.rpg} RPG</span>
-            <span>${p.apg} APG</span>
+            <span>${p.height}</span>
+            <span>${p.weight} kg</span>
+            <span>${p.age} ans</span>
           </div>
         </div>
       `).join('')}

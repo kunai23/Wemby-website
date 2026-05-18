@@ -90,6 +90,7 @@
     const activeBtn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
     if (activeBtn) moveInk(activeBtn);
     if (name === 'resultats' && !window._resultsInited) initResults();
+    if (name === 'playoffs') renderPlayoffs();
   }
 
   btns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
@@ -507,6 +508,101 @@ function renderResults() {
       <td class="${pmClass}">${pmSign}${g.plus_minus || 0}</td>
     </tr>`;
   }).join('');
+}
+
+/* ════════════════════════════════
+   PLAYOFFS BRACKET
+════════════════════════════════ */
+const PLAYOFF_DATA = {
+  west: {
+    r1: [
+      { t1: 'OKC', n1: 'Thunder',       s1: 4, t2: 'PHX', n2: 'Suns',          s2: 0, winner: 'OKC' },
+      { t1: 'LAL', n1: 'Lakers',        s1: 4, t2: 'HOU', n2: 'Rockets',       s2: 2, winner: 'LAL' },
+      { t1: 'SAS', n1: 'Spurs',         s1: 4, t2: 'POR', n2: 'Trail Blazers', s2: 1, winner: 'SAS' },
+      { t1: 'MIN', n1: 'Timberwolves',  s1: 4, t2: 'DEN', n2: 'Nuggets',       s2: 2, winner: 'MIN' },
+    ],
+    r2: [
+      { t1: 'OKC', n1: 'Thunder',      s1: 4, t2: 'LAL', n2: 'Lakers',        s2: 0, winner: 'OKC' },
+      { t1: 'SAS', n1: 'Spurs',        s1: 4, t2: 'MIN', n2: 'Timberwolves',  s2: 2, winner: 'SAS' },
+    ],
+    cf: { t1: 'OKC', n1: 'Thunder', s1: 0, t2: 'SAS', n2: 'Spurs', s2: 0, winner: null, live: true },
+  },
+  east: {
+    r1: [
+      { t1: 'DET', n1: 'Pistons',   s1: 4, t2: 'ORL', n2: 'Magic',   s2: 3, winner: 'DET' },
+      { t1: 'CLE', n1: 'Cavaliers', s1: 4, t2: 'TOR', n2: 'Raptors', s2: 3, winner: 'CLE' },
+      { t1: 'NYK', n1: 'Knicks',    s1: 4, t2: 'ATL', n2: 'Hawks',   s2: 2, winner: 'NYK' },
+      { t1: 'PHI', n1: '76ers',     s1: 4, t2: 'BOS', n2: 'Celtics', s2: 3, winner: 'PHI' },
+    ],
+    r2: [
+      { t1: 'CLE', n1: 'Cavaliers', s1: 4, t2: 'DET', n2: 'Pistons', s2: 3, winner: 'CLE' },
+      { t1: 'NYK', n1: 'Knicks',    s1: 4, t2: 'PHI', n2: '76ers',   s2: 0, winner: 'NYK' },
+    ],
+    cf: { t1: 'CLE', n1: 'Cavaliers', s1: 0, t2: 'NYK', n2: 'Knicks', s2: 0, winner: null, live: true },
+  },
+};
+
+function _bkTeamRow(abbr, name, score, isWinner, done) {
+  const wc = done ? (isWinner ? 'bk-w' : 'bk-l') : '';
+  const spurs = abbr === 'SAS' ? ' bk-spurs' : '';
+  const sc = done ? score : '–';
+  return `<div class="bk-team ${wc}${spurs}">
+    <span class="bk-abbr">${abbr}</span>
+    <span class="bk-name">${name}</span>
+    <span class="bk-score">${sc}</span>
+  </div>`;
+}
+
+function _bkCard(m, extra) {
+  const done = !!m.winner;
+  const live = m.live && !done;
+  const cls = live ? 'bk-live' : (done ? 'bk-done' : '');
+  const badge = live
+    ? `<div class="bk-badge"><span class="pulse-dot bk-pulse"></span>EN COURS</div>`
+    : (done ? `<div class="bk-badge bk-result">${m.winner} wins ${Math.max(m.s1,m.s2)}-${Math.min(m.s1,m.s2)}</div>` : '');
+  return `<div class="bk-card ${cls} ${extra||''}">
+    ${_bkTeamRow(m.t1, m.n1, m.s1, m.winner === m.t1, done)}
+    <div class="bk-sep"></div>
+    ${_bkTeamRow(m.t2, m.n2, m.s2, m.winner === m.t2, done)}
+    ${badge}
+  </div>`;
+}
+
+function renderPlayoffs() {
+  const el = document.getElementById('playoff-bracket');
+  if (!el || el.dataset.init) return;
+  el.dataset.init = '1';
+  const P = PLAYOFF_DATA;
+
+  const col = (matches, extra) => matches.map(m =>
+    `<div class="bk-cell">${_bkCard(m, extra)}</div>`).join('');
+
+  el.innerHTML = `
+    <div class="bk-conf-headers">
+      <span class="bk-conf-lbl">CONFÉRENCE OUEST</span>
+      <span class="bk-conf-lbl bk-finals-lbl">FINALES NBA</span>
+      <span class="bk-conf-lbl">CONFÉRENCE EST</span>
+    </div>
+    <div class="bk-scroll">
+      <div class="bk-grid">
+        <div class="bk-col" data-label="PREMIER TOUR">${col(P.west.r1)}</div>
+        <div class="bk-col" data-label="DEMI-FINALES">${col(P.west.r2)}</div>
+        <div class="bk-col" data-label="FINALE CONF.">${`<div class="bk-cell">${_bkCard(P.west.cf, 'bk-cf')}</div>`}</div>
+        <div class="bk-col bk-finals-col" data-label="FINALES NBA">
+          <div class="bk-cell">
+            <div class="bk-finals-card">
+              <div class="bk-finals-trophy">🏆</div>
+              <div class="bk-finals-title">FINALES NBA</div>
+              <div class="bk-finals-sub">À déterminer</div>
+            </div>
+          </div>
+        </div>
+        <div class="bk-col" data-label="FINALE CONF.">${`<div class="bk-cell">${_bkCard(P.east.cf, 'bk-cf')}</div>`}</div>
+        <div class="bk-col" data-label="DEMI-FINALES">${col(P.east.r2)}</div>
+        <div class="bk-col" data-label="PREMIER TOUR">${col(P.east.r1)}</div>
+      </div>
+    </div>
+  `;
 }
 
 /* ── Boot ── */

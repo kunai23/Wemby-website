@@ -227,6 +227,9 @@ def find_wemby_bdl(api_key: str) -> int | None:
             headers={"Authorization": api_key},
             timeout=15,
         )
+        if r.status_code == 403 and "allowlist" in r.text.lower():
+            print("  [BDL] ⚠️  Clé restreinte — va sur balldontlie.io → API Keys → Allowed Hosts → mets '*'", file=sys.stderr)
+            return None
         r.raise_for_status()
         for p in r.json().get("data", []):
             if "wembanyama" in p.get("last_name", "").lower():

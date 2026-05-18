@@ -1,12 +1,11 @@
 name: Mise à jour stats Wembanyama
 
 on:
-  # Déclenché manuellement après avoir poussé de nouvelles données
-  workflow_dispatch:
-  # Ou automatiquement si data/wemby_stats.json est modifié sur main
+  # Déclenché automatiquement quand tu pushes data/wemby_stats.json
   push:
     branches: [main]
     paths:    [data/wemby_stats.json]
+  workflow_dispatch:
 
 permissions:
   contents: write

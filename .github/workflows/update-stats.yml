@@ -25,12 +25,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Installer dépendances
-        run: pip install requests
+      - name: Installer dépendances Python
+        run: pip install playwright requests
+
+      - name: Installer Chromium
+        run: playwright install chromium --with-deps
 
       - name: Récupérer les stats Wembanyama
-        env:
-          BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
         run: python scripts/fetch_stats.py
 
       - name: Commit & push si nouvelles données

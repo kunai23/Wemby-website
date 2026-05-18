@@ -1081,8 +1081,13 @@ body {
 .sr-wemby-pos {
   font-size: 11px;
   color: var(--cyan);
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   margin-top: 4px;
+}
+.sr-wemby-age {
+  font-size: 10px;
+  color: var(--gray);
+  margin-top: 3px;
 }
 .sr-wemby-stats {
   display: flex;

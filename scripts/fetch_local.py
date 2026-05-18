@@ -74,7 +74,7 @@ def main():
     print("=== Mise à jour stats Wembanyama ===\n")
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
 
-    for season in ["2023-24", "2024-25"]:
+    for season in ["2023-24", "2024-25", "2025-26"]:
         try:
             games = fetch_gamelog(season)
             data.setdefault("game_logs", {})[season] = games

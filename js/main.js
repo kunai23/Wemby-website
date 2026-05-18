@@ -436,11 +436,13 @@ function renderResults() {
 
   const allGames = DATA.game_logs[currentSeason] || [];
   if (!allGames.length) {
+    const isNext = currentSeason === '2025-26';
     tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:48px">
-      <div style="font-family:var(--font-display);font-size:12px;letter-spacing:2px;color:var(--purple-light);margin-bottom:10px">CHARGEMENT EN COURS</div>
+      <div style="font-family:var(--font-display);font-size:12px;letter-spacing:2px;color:var(--purple-light);margin-bottom:10px">${isNext ? 'SAISON À VENIR' : 'AUCUNE DONNÉE'}</div>
       <div style="font-size:13px;color:var(--gray);max-width:400px;margin:0 auto;line-height:1.6">
-        Les données exactes match par match sont récupérées automatiquement via l'API BallDontLie.<br>
-        <span style="color:var(--cyan)">Mise à jour ce soir à 22h00.</span>
+        ${isNext
+          ? 'La saison 2025-26 débute en <span style="color:var(--cyan)">octobre 2025</span>. Relance le script local dès les premiers matchs.'
+          : 'Lance <span style="color:var(--cyan)">python scripts/fetch_local.py</span> depuis ton ordi pour charger les données.'}
       </div>
     </td></tr>`;
     return;

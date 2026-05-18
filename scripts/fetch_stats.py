@@ -1,18 +1,28 @@
 """
-fetch_stats.py — Récupère les stats Wembanyama via un vrai navigateur (Playwright)
-Ce script ouvre Chrome en mode headless, intercepte les requêtes NBA et extrait les données.
+fetch_stats.py — Récupère les stats Wembanyama via RapidAPI (API-NBA).
+
+Setup (1 fois) :
+  1. Créer un compte gratuit sur rapidapi.com (pas de carte bleue)
+  2. Chercher "API-NBA" → Subscribe (plan Basic, gratuit, 100 req/jour)
+  3. Copier la clé depuis https://rapidapi.com/api-sports/api/api-nba
+  4. Dans GitHub : Settings → Secrets → New secret
+     Nom : RAPIDAPI_KEY  /  Valeur : ta_clé
 """
 
 import json
+import os
 import sys
-import time
+import requests
 from datetime import datetime, timezone
 from pathlib import Path
 
-ROOT        = Path(__file__).resolve().parent.parent
-DATA_PATH   = ROOT / "data" / "wemby_stats.json"
-WEMBY_ID    = 1641705
-SEASONS     = {"2023-24": "2023-24", "2024-25": "2024-25"}
+ROOT      = Path(__file__).resolve().parent.parent
+DATA_PATH = ROOT / "data" / "wemby_stats.json"
+
+RAPID_HOST = "api-nba-v1.p.rapidapi.com"
+RAPID_BASE = f"https://{RAPID_HOST}"
+
+WEMBY_ID_RAPID = None   # sera résolu dynamiquement
 
 def save(data: dict):
     data["last_updated"] = datetime.now(timezone.utc).isoformat()
@@ -22,108 +32,117 @@ def save(data: dict):
 def load() -> dict:
     return json.loads(DATA_PATH.read_text())
 
-def fmt_date(raw: str) -> str:
-    for fmt in ("%b %d, %Y", "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d"):
-        try:
-            return datetime.strptime(raw[:20].strip(), fmt).strftime("%Y-%m-%d")
-        except Exception:
-            pass
-    return raw[:10]
+def rapid_headers(api_key: str) -> dict:
+    return {
+        "X-RapidAPI-Key":  api_key,
+        "X-RapidAPI-Host": RAPID_HOST,
+        "Accept":          "application/json",
+    }
 
-def parse_nba_gamelog(response_json: dict) -> list:
-    """Parse stats.nba.com playergamelog response."""
+# ── Trouver l'ID RapidAPI de Wemby ──────────────────────
+
+def find_wemby_id(api_key: str) -> str | None:
     try:
-        rs      = response_json["resultSets"][0]
-        headers = rs["headers"]
-        idx     = {h: i for i, h in enumerate(headers)}
-        games   = []
-        for row in rs["rowSet"]:
+        r = requests.get(
+            f"{RAPID_BASE}/players",
+            params={"name": "wembanyama", "season": "2024"},
+            headers=rapid_headers(api_key),
+            timeout=15,
+        )
+        if r.status_code == 401:
+            print("[RapidAPI] ❌ Clé invalide ou quota dépassé", file=sys.stderr)
+            return None
+        r.raise_for_status()
+        players = r.json().get("response", [])
+        for p in players:
+            ln = (p.get("lastname") or "").lower()
+            if "wembanyama" in ln:
+                pid = str(p["id"])
+                print(f"  [RapidAPI] Joueur trouvé : {p['firstname']} {p['lastname']} (id={pid})")
+                return pid
+        print("  [RapidAPI] Joueur introuvable dans la réponse", file=sys.stderr)
+        return None
+    except Exception as e:
+        print(f"  [RapidAPI] find error: {e}", file=sys.stderr)
+        return None
+
+# ── Récupérer les stats match par match ─────────────────
+
+SEASON_MAP = {"2023-24": "2023", "2024-25": "2024"}
+
+def fetch_rapid_gamelog(api_key: str, player_id: str, season_str: str) -> list:
+    season = SEASON_MAP.get(season_str)
+    if not season:
+        return []
+    try:
+        r = requests.get(
+            f"{RAPID_BASE}/players/statistics",
+            params={"id": player_id, "season": season},
+            headers=rapid_headers(api_key),
+            timeout=20,
+        )
+        r.raise_for_status()
+        stats = r.json().get("response", [])
+        print(f"  [RapidAPI] {season_str}: {len(stats)} entrées reçues")
+
+        games_by_id: dict[str, dict] = {}
+        for row in stats:
             try:
-                matchup = row[idx["MATCHUP"]]
-                at_away = "@" in matchup
-                opp     = matchup.split("@")[-1].strip() if at_away else matchup.split("vs.")[-1].strip()
-                games.append({
-                    "date":       fmt_date(row[idx["GAME_DATE"]]),
-                    "opponent":   opp.strip(),
-                    "home":       not at_away,
-                    "wl":         row[idx["WL"]],
-                    "pts":        row[idx["PTS"]] or 0,
-                    "reb":        row[idx["REB"]] or 0,
-                    "ast":        row[idx["AST"]] or 0,
-                    "blk":        row[idx["BLK"]] or 0,
-                    "stl":        row[idx["STL"]] or 0,
-                    "fg":         row[idx["FGM"]] or 0,
-                    "fga":        row[idx["FGA"]] or 0,
-                    "fg3":        row[idx["FG3M"]] or 0,
-                    "fg3a":       row[idx["FG3A"]] or 0,
-                    "ft":         row[idx["FTM"]] or 0,
-                    "fta":        row[idx["FTA"]] or 0,
-                    "plus_minus": row[idx["PLUS_MINUS"]] or 0,
-                    "score_team": 0,
-                    "score_opp":  0,
-                })
+                game   = row.get("game", {})
+                gid    = str(game.get("id", ""))
+                team   = row.get("team", {})
+                teams  = game.get("teams", {})
+                home_t = teams.get("home", {})
+                away_t = teams.get("visitors", {})
+                is_home = team.get("id") == home_t.get("id")
+                home_s  = game.get("scores", {}).get("home", {}).get("points") or 0
+                away_s  = game.get("scores", {}).get("visitors", {}).get("points") or 0
+                team_score = home_s if is_home else away_s
+                opp_score  = away_s if is_home else home_s
+                opp_team   = home_t if not is_home else away_t
+                opp_abbr   = opp_team.get("code") or opp_team.get("nickname", "???")
+
+                date_raw = game.get("date", {})
+                if isinstance(date_raw, dict):
+                    date_str = (date_raw.get("start") or "")[:10]
+                else:
+                    date_str = str(date_raw)[:10]
+
+                def i(k): return int(row.get(k) or 0)
+                def f(k): return float(row.get(k) or 0)
+
+                fg  = i("fgm"); fga  = i("fga")
+                fg3 = i("tpm"); fg3a = i("tpa")
+                ft  = i("ftm"); fta  = i("fta")
+                pts = i("points"); reb = i("totReb"); ast = i("assists")
+                blk = i("blocks"); stl = i("steals")
+
+                games_by_id[gid] = {
+                    "date":       date_str,
+                    "opponent":   opp_abbr,
+                    "home":       is_home,
+                    "wl":         "W" if team_score > opp_score else "L",
+                    "pts":        pts, "reb": reb, "ast": ast,
+                    "blk":        blk, "stl": stl,
+                    "fg":         fg,  "fga":  fga,
+                    "fg3":        fg3, "fg3a": fg3a,
+                    "ft":         ft,  "fta":  fta,
+                    "plus_minus": 0,
+                    "score_team": int(team_score),
+                    "score_opp":  int(opp_score),
+                }
             except Exception:
                 continue
-        return games
-    except Exception as e:
-        print(f"  [parse] Erreur: {e}", file=sys.stderr)
-        return []
 
-def fetch_season_browser(season: str) -> list:
-    """Utilise Playwright pour intercepter les réponses NBA."""
-    try:
-        from playwright.sync_api import sync_playwright
-    except ImportError:
-        print("  [browser] Playwright non installé", file=sys.stderr)
-        return []
-
-    print(f"  [browser] Ouverture Chrome headless pour {season}…")
-    captured = []
-
-    try:
-        with sync_playwright() as pw:
-            browser = pw.chromium.launch(headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"])
-            context = browser.new_context(
-                user_agent=(
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                    "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/124.0.0.0 Safari/537.36"
-                ),
-                viewport={"width": 1280, "height": 800},
-                locale="en-US",
-            )
-            page = context.new_page()
-
-            def on_response(response):
-                if "playergamelog" in response.url and "PlayerID" in response.url:
-                    try:
-                        data = response.json()
-                        games = parse_nba_gamelog(data)
-                        if games:
-                            captured.extend(games)
-                            print(f"  [browser] Intercepté: {len(games)} matchs")
-                    except Exception:
-                        pass
-
-            page.on("response", on_response)
-
-            url = (
-                f"https://www.nba.com/stats/player/{WEMBY_ID}/traditional"
-                f"?PerMode=Totals&Season={season}&SeasonType=Regular%20Season"
-            )
-            print(f"  [browser] Navigation → {url}")
-            try:
-                page.goto(url, wait_until="networkidle", timeout=30000)
-            except Exception:
-                page.wait_for_timeout(8000)
-
-            page.wait_for_timeout(4000)
-            browser.close()
+        result = sorted(games_by_id.values(), key=lambda x: x["date"])
+        print(f"  [RapidAPI] {len(result)} matchs uniques")
+        return result
 
     except Exception as e:
-        print(f"  [browser] Erreur: {e}", file=sys.stderr)
+        print(f"  [RapidAPI] fetch error: {e}", file=sys.stderr)
+        return []
 
-    return captured
+# ── Merge ────────────────────────────────────────────────
 
 def merge_games(existing: list, new_games: list) -> list:
     keys  = {(g["date"], g["opponent"]) for g in existing}
@@ -134,20 +153,37 @@ def merge_games(existing: list, new_games: list) -> list:
             existing.append(g)
             keys.add(k)
             added += 1
-    print(f"  → {added} nouveaux matchs (total: {len(existing)})")
+    print(f"  → {added} nouveaux matchs ajoutés (total: {len(existing)})")
     return sorted(existing, key=lambda x: x["date"])
 
+# ── Main ─────────────────────────────────────────────────
+
 def main():
+    api_key = os.environ.get("RAPIDAPI_KEY", "").strip()
+    if not api_key:
+        print("⚠️  RAPIDAPI_KEY manquant — voir instructions dans le script", file=sys.stderr)
+        print("   → rapidapi.com → chercher 'API-NBA' → Subscribe (gratuit) → copier la clé")
+        print("   → GitHub : Settings → Secrets → RAPIDAPI_KEY")
+        save(load())
+        return
+
     data = load()
+    print(f"\n[RapidAPI] Clé détectée ✓")
+
+    player_id = find_wemby_id(api_key)
+    if not player_id:
+        print("Impossible de trouver Wemby — abandon")
+        save(data)
+        return
 
     for season_str in ["2023-24", "2024-25"]:
         existing = data.setdefault("game_logs", {}).setdefault(season_str, [])
         print(f"\n── Saison {season_str} ({len(existing)} matchs existants) ──")
-        new_games = fetch_season_browser(season_str)
+        new_games = fetch_rapid_gamelog(api_key, player_id, season_str)
         if new_games:
             data["game_logs"][season_str] = merge_games(existing, new_games)
         else:
-            print("  Aucun match récupéré — données conservées")
+            print("  Aucun match récupéré")
 
     save(data)
     print("\n[✓] Terminé.")

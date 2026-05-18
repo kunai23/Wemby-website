@@ -114,7 +114,7 @@
 
 /* ── Data loading & rendering ── */
 let DATA = null;
-let currentSeason = '2024-25';
+let currentSeason = '2025-26';
 let currentFilter = 'ALL';
 let currentSearch = '';
 let sortKey = 'date';
@@ -249,7 +249,7 @@ function renderCareerChart() {
 function renderRadarChart() {
   const canvas = document.getElementById('radarChart');
   if (!canvas || !DATA.career_averages) return;
-  const season = DATA.career_averages.find(s => s.season === '2024-25') || DATA.career_averages.at(-1);
+  const season = DATA.career_averages.find(s => s.season === '2025-26') || DATA.career_averages.at(-1);
   const norm = (v, max) => Math.min(10, (v / max) * 10);
 
   new Chart(canvas, {
@@ -257,7 +257,7 @@ function renderRadarChart() {
     data: {
       labels: ['Pts', 'Rebonds', 'Passes', 'Contres', 'Interceptions', 'FG%'],
       datasets: [{
-        label: '2024-25',
+        label: '2025-26',
         data: [
           norm(season.ppg, 35),
           norm(season.rpg, 15),

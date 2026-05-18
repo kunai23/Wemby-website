@@ -1,0 +1,473 @@
+/* =============================================
+   WEMBANYAMA — L'Extraterrestre
+   main.js — Particle cosmos, tabs, data rendering
+   ============================================= */
+
+/* ── Cosmos particle background ── */
+(function () {
+  const canvas = document.getElementById('cosmos');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [], nebula = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function initStars() {
+    stars = [];
+    for (let i = 0; i < 220; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.4 + 0.2,
+        a: Math.random(),
+        speed: Math.random() * 0.003 + 0.001,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+    nebula = [];
+    for (let i = 0; i < 6; i++) {
+      nebula.push({
+        x: Math.random() * W,
+        y: Math.random() * H * 0.7,
+        r: Math.random() * 300 + 150,
+        hue: Math.random() > 0.5 ? 270 : 190,
+        a: Math.random() * 0.04 + 0.01,
+      });
+    }
+  }
+
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+
+    nebula.forEach(n => {
+      const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
+      g.addColorStop(0, `hsla(${n.hue}, 80%, 50%, ${n.a})`);
+      g.addColorStop(1, `hsla(${n.hue}, 80%, 50%, 0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    stars.forEach(s => {
+      const alpha = 0.3 + Math.sin(t * s.speed + s.phase) * 0.3 + 0.2;
+      ctx.globalAlpha = Math.min(1, alpha);
+      ctx.fillStyle = '#c8b8ff';
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); initStars(); });
+  resize();
+  initStars();
+  requestAnimationFrame(draw);
+})();
+
+/* ── Tab system ── */
+(function () {
+  const btns = document.querySelectorAll('.tab-btn');
+  const sections = document.querySelectorAll('.tab-section');
+  const ink = document.getElementById('tab-ink');
+
+  function moveInk(btn) {
+    const nav = document.querySelector('.tab-nav-inner');
+    const navRect = nav.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    ink.style.left  = (btnRect.left - navRect.left) + 'px';
+    ink.style.width = btnRect.width + 'px';
+  }
+
+  function switchTab(name) {
+    btns.forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    sections.forEach(s => s.classList.toggle('active', s.id === 'tab-' + name));
+    const activeBtn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
+    if (activeBtn) moveInk(activeBtn);
+    if (name === 'resultats' && !window._resultsInited) initResults();
+  }
+
+  btns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+  window.addEventListener('load', () => {
+    const activeBtn = document.querySelector('.tab-btn.active');
+    if (activeBtn) moveInk(activeBtn);
+  });
+  window.addEventListener('resize', () => {
+    const activeBtn = document.querySelector('.tab-btn.active');
+    if (activeBtn) moveInk(activeBtn);
+  });
+})();
+
+/* ── Reveal on scroll ── */
+(function () {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+})();
+
+/* ── Data loading & rendering ── */
+let DATA = null;
+let currentSeason = '2024-25';
+let currentFilter = 'ALL';
+let currentSearch = '';
+let sortKey = 'date';
+let sortDir = -1; // -1 = desc
+
+async function loadData() {
+  try {
+    const res = await fetch('data/wemby_stats.json?t=' + Date.now());
+    DATA = await res.json();
+    renderAll();
+  } catch (e) {
+    console.error('Erreur chargement données:', e);
+  }
+}
+
+function renderAll() {
+  if (!DATA) return;
+  renderHero();
+  renderPalmares();
+  renderRecords();
+  renderCareerChart();
+  renderRadarChart();
+  renderCompareChart();
+  updateLastUpdate();
+}
+
+function updateLastUpdate() {
+  const el = document.getElementById('last-update');
+  if (!el) return;
+  const d = new Date(DATA.last_updated);
+  el.textContent = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+/* ── HERO STATS ── */
+function renderHero() {
+  const season = DATA.career_averages.find(s => s.season === '2024-25') || DATA.career_averages.at(-1);
+  if (!season) return;
+
+  animateVal('hs-ppg', season.ppg);
+  animateVal('hs-rpg', season.rpg);
+  animateVal('hs-apg', season.apg);
+  animateVal('hs-bpg', season.bpg);
+  const el = document.getElementById('hs-fg');
+  if (el) animateVal('hs-fg', season.fg_pct, '%');
+  const rec = document.getElementById('hs-record');
+  if (rec && season.wins !== undefined) {
+    setTimeout(() => { rec.textContent = season.wins + '-' + season.losses; }, 600);
+  }
+}
+
+function animateVal(id, target, suffix = '') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = 0;
+  const duration = 1200;
+  const startTime = performance.now();
+  function step(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const ease = 1 - Math.pow(1 - t, 3);
+    const cur = start + (target - start) * ease;
+    el.textContent = (Number.isInteger(target) ? Math.round(cur) : cur.toFixed(1)) + suffix;
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ── PALMARÈS ── */
+function renderPalmares() {
+  const grid = document.getElementById('palmares-grid');
+  if (!grid || !DATA.palmares) return;
+
+  const badgeMap = { NBA: 'nba', France: 'fr', Europe: 'eu', Draft: 'draft' };
+
+  grid.innerHTML = DATA.palmares.map((p, i) => `
+    <div class="palmares-card" style="animation-delay:${i * 0.07}s">
+      <div class="pc-icon">${p.icon}</div>
+      <div class="pc-body">
+        <div class="pc-year">${p.year}</div>
+        <div class="pc-title">${p.title}</div>
+        <div class="pc-desc">${p.description}</div>
+        <span class="pc-badge badge-${badgeMap[p.category] || 'nba'}">${p.category.toUpperCase()}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── RECORDS ── */
+function renderRecords() {
+  const grid = document.getElementById('records-grid');
+  if (!grid || !DATA.records) return;
+
+  grid.innerHTML = DATA.records.map((r, i) => `
+    <div class="record-card" style="animation-delay:${i * 0.06}s">
+      <div>
+        <div class="record-cat">${r.category}</div>
+        <div class="record-val">${r.value}</div>
+      </div>
+      <div class="record-info">
+        <div class="record-title">${r.title}</div>
+        <div class="record-ctx">${r.context}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── CAREER CHART ── */
+function renderCareerChart() {
+  const canvas = document.getElementById('careerChart');
+  if (!canvas || !DATA.career_averages) return;
+  const labels  = DATA.career_averages.map(s => s.season);
+  const ppg     = DATA.career_averages.map(s => s.ppg);
+  const rpg     = DATA.career_averages.map(s => s.rpg);
+  const bpg     = DATA.career_averages.map(s => s.bpg);
+
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'PPG', data: ppg, borderColor: '#a855f7', backgroundColor: 'rgba(168,85,247,0.1)', tension: 0.4, fill: true, pointRadius: 5, pointBackgroundColor: '#a855f7' },
+        { label: 'RPG', data: rpg, borderColor: '#00d4ff', backgroundColor: 'rgba(0,212,255,0.07)', tension: 0.4, fill: true, pointRadius: 5, pointBackgroundColor: '#00d4ff' },
+        { label: 'BPG', data: bpg, borderColor: '#ffd700', backgroundColor: 'rgba(255,215,0,0.06)',  tension: 0.4, fill: true, pointRadius: 5, pointBackgroundColor: '#ffd700' },
+      ],
+    },
+    options: chartDefaults({ yLabel: 'Statistiques' }),
+  });
+}
+
+/* ── RADAR CHART ── */
+function renderRadarChart() {
+  const canvas = document.getElementById('radarChart');
+  if (!canvas || !DATA.career_averages) return;
+  const season = DATA.career_averages.find(s => s.season === '2024-25') || DATA.career_averages.at(-1);
+  const norm = (v, max) => Math.min(10, (v / max) * 10);
+
+  new Chart(canvas, {
+    type: 'radar',
+    data: {
+      labels: ['Pts', 'Rebonds', 'Passes', 'Contres', 'Interceptions', 'FG%'],
+      datasets: [{
+        label: '2024-25',
+        data: [
+          norm(season.ppg, 35),
+          norm(season.rpg, 15),
+          norm(season.apg, 8),
+          norm(season.bpg, 5),
+          norm(season.spg, 3),
+          norm(season.fg_pct, 65),
+        ],
+        borderColor: '#a855f7',
+        backgroundColor: 'rgba(168,85,247,0.15)',
+        pointBackgroundColor: '#00d4ff',
+        pointBorderColor: '#00d4ff',
+        pointRadius: 5,
+      }],
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          min: 0, max: 10,
+          grid:       { color: 'rgba(255,255,255,0.08)' },
+          angleLines: { color: 'rgba(255,255,255,0.08)' },
+          ticks:      { display: false },
+          pointLabels: {
+            color: '#9ca3af',
+            font: { family: 'Orbitron', size: 10 },
+          },
+        },
+      },
+    },
+  });
+}
+
+/* ── COMPARE CHART ── */
+function renderCompareChart() {
+  const canvas = document.getElementById('compareChart');
+  if (!canvas || !DATA.career_averages) return;
+  const nbaSeason = DATA.career_averages.filter(s => s.league === 'NBA');
+  const labels = nbaSeason.map(s => s.season);
+
+  new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'PPG', data: nbaSeason.map(s => s.ppg), backgroundColor: 'rgba(168,85,247,0.7)', borderRadius: 6 },
+        { label: 'RPG', data: nbaSeason.map(s => s.rpg), backgroundColor: 'rgba(0,212,255,0.7)',  borderRadius: 6 },
+        { label: 'BPG', data: nbaSeason.map(s => s.bpg), backgroundColor: 'rgba(255,215,0,0.7)',  borderRadius: 6 },
+        { label: 'APG', data: nbaSeason.map(s => s.apg), backgroundColor: 'rgba(34,197,94,0.7)',  borderRadius: 6 },
+      ],
+    },
+    options: chartDefaults({ yLabel: 'Statistiques NBA' }),
+  });
+}
+
+function chartDefaults({ yLabel = '' } = {}) {
+  return {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { color: '#9ca3af', font: { family: 'Inter', size: 11 }, boxWidth: 14 } },
+      tooltip: {
+        backgroundColor: 'rgba(12,6,30,0.95)',
+        borderColor: 'rgba(110,50,220,0.4)',
+        borderWidth: 1,
+        titleColor: '#c8b8ff',
+        bodyColor: '#d1d5db',
+        titleFont: { family: 'Orbitron', size: 11 },
+      },
+    },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { family: 'Orbitron', size: 9 } } },
+      y: {
+        grid: { color: 'rgba(255,255,255,0.05)' },
+        ticks: { color: '#9ca3af', font: { family: 'Inter', size: 10 } },
+        title: { display: !!yLabel, text: yLabel, color: '#6b7280', font: { size: 10 } },
+      },
+    },
+  };
+}
+
+/* ════════════════════════════════
+   RÉSULTATS
+════════════════════════════════ */
+let _resultsInited = false;
+
+function initResults() {
+  if (_resultsInited) return;
+  _resultsInited = true;
+  window._resultsInited = true;
+
+  document.querySelectorAll('.season-btn').forEach(b =>
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.season-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      currentSeason = b.dataset.season;
+      renderResults();
+    })
+  );
+
+  document.querySelectorAll('.filter-btn').forEach(b =>
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      currentFilter = b.dataset.filter;
+      renderResults();
+    })
+  );
+
+  document.getElementById('opp-search').addEventListener('input', e => {
+    currentSearch = e.target.value.toLowerCase().trim();
+    renderResults();
+  });
+
+  document.querySelectorAll('.results-table th[data-sort]').forEach(th =>
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      if (sortKey === key) sortDir = -sortDir;
+      else { sortKey = key; sortDir = -1; }
+      document.querySelectorAll('.results-table th').forEach(h => {
+        h.classList.remove('sort-asc', 'sort-desc');
+      });
+      th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+      renderResults();
+    })
+  );
+
+  if (DATA) renderResults();
+}
+
+function getFilteredGames() {
+  if (!DATA || !DATA.game_logs) return [];
+  const games = DATA.game_logs[currentSeason] || [];
+  return games.filter(g => {
+    if (currentFilter !== 'ALL' && g.wl !== currentFilter) return false;
+    if (currentSearch && !g.opponent.toLowerCase().includes(currentSearch)) return false;
+    return true;
+  }).sort((a, b) => {
+    let va, vb;
+    if (sortKey === 'date') { va = new Date(a.date); vb = new Date(b.date); }
+    else if (sortKey === 'wl') { va = a.wl; vb = b.wl; }
+    else { va = a[sortKey] || 0; vb = b[sortKey] || 0; }
+    if (va < vb) return sortDir;
+    if (va > vb) return -sortDir;
+    return 0;
+  });
+}
+
+function fmtDate(str) {
+  const d = new Date(str + 'T00:00:00');
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+}
+
+function pct(made, att) {
+  if (!att) return '—';
+  return (made / att * 100).toFixed(0) + '%';
+}
+
+function renderResults() {
+  if (!DATA) return;
+  const games = getFilteredGames();
+  const tbody = document.getElementById('results-tbody');
+
+  const wins   = games.filter(g => g.wl === 'W').length;
+  const losses = games.filter(g => g.wl === 'L').length;
+  const avgPts = games.length ? (games.reduce((s, g) => s + g.pts, 0) / games.length).toFixed(1) : '—';
+  const avgReb = games.length ? (games.reduce((s, g) => s + g.reb, 0) / games.length).toFixed(1) : '—';
+  const avgBlk = games.length ? (games.reduce((s, g) => s + g.blk, 0) / games.length).toFixed(1) : '—';
+
+  document.getElementById('rs-gp').textContent = games.length;
+  document.getElementById('rs-w').textContent  = wins;
+  document.getElementById('rs-l').textContent  = losses;
+  document.getElementById('rs-ppg').textContent = avgPts;
+  document.getElementById('rs-rpg').textContent = avgReb;
+  document.getElementById('rs-bpg').textContent = avgBlk;
+
+  if (!games.length) {
+    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:40px;color:#6b7280">Aucun match trouvé</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = games.map(g => {
+    const fgPct  = pct(g.fg,  g.fga);
+    const fg3Pct = pct(g.fg3, g.fg3a);
+    const ftPct  = pct(g.ft,  g.fta);
+    const ptsClass = g.pts >= 40 ? 'td-pts fire' : g.pts >= 30 ? 'td-pts hot' : 'td-pts';
+    const blkClass = g.blk >= 5  ? 'td-blk elite' : 'td-blk';
+    const pmClass  = (g.plus_minus || 0) >= 0 ? 'plus-pos' : 'plus-neg';
+    const pmSign   = (g.plus_minus || 0) >= 0 ? '+' : '';
+    const homeAway = g.home ? '' : '<span style="color:#6b7280;font-size:11px">@</span>';
+    const score    = `${g.score_team}–${g.score_opp}`;
+
+    return `<tr>
+      <td>${fmtDate(g.date)}</td>
+      <td>${homeAway} <strong style="color:#e0e0ff">${g.opponent}</strong></td>
+      <td><span class="badge-${g.wl.toLowerCase()}">${g.wl}</span></td>
+      <td style="color:#9ca3af;font-size:12px">${score}</td>
+      <td><span class="${ptsClass}">${g.pts}</span></td>
+      <td>${g.reb}</td>
+      <td>${g.ast}</td>
+      <td><span class="${blkClass}">${g.blk}</span></td>
+      <td>${g.stl}</td>
+      <td>${fgPct}</td>
+      <td>${fg3Pct}</td>
+      <td>${ftPct}</td>
+      <td class="${pmClass}">${pmSign}${g.plus_minus || 0}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Boot ── */
+window.addEventListener('DOMContentLoaded', () => {
+  loadData();
+});

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WEMBANYAMA — L'Extraterrestre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<canvas id="cosmos"></canvas>
+
+<!-- ─────────── HERO ─────────── -->
+<header class="hero">
+  <div class="hero-inner">
+    <p class="hero-eyebrow">SAN ANTONIO SPURS · #1 · CENTER</p>
+    <h1 class="hero-name">
+      <span class="name-line">VICTOR</span>
+      <span class="name-line accent">WEMBANYAMA</span>
+    </h1>
+    <p class="hero-tag">L'EXTRATERRESTRE</p>
+
+    <div class="live-badge">
+      <span class="pulse-dot"></span>
+      Mis à jour le <span id="last-update">…</span>
+    </div>
+
+    <div class="hero-stats" id="hero-stats">
+      <div class="hs-card">
+        <span class="hs-val" id="hs-ppg">—</span>
+        <span class="hs-lbl">PPG</span>
+      </div>
+      <div class="hs-card">
+        <span class="hs-val" id="hs-rpg">—</span>
+        <span class="hs-lbl">RPG</span>
+      </div>
+      <div class="hs-card">
+        <span class="hs-val" id="hs-apg">—</span>
+        <span class="hs-lbl">APG</span>
+      </div>
+      <div class="hs-card">
+        <span class="hs-val" id="hs-bpg">—</span>
+        <span class="hs-lbl">BPG</span>
+      </div>
+      <div class="hs-card">
+        <span class="hs-val" id="hs-fg">—</span>
+        <span class="hs-lbl">FG%</span>
+      </div>
+      <div class="hs-card">
+        <span class="hs-val" id="hs-record">—</span>
+        <span class="hs-lbl">BILAN 24-25</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll-hint">&#8595; EXPLORER</div>
+</header>
+
+<!-- ─────────── NAV ─────────── -->
+<nav class="tab-nav" id="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" data-tab="histoire">HISTOIRE</button>
+    <button class="tab-btn" data-tab="palmares">PALMARÈS</button>
+    <button class="tab-btn" data-tab="records">RECORDS</button>
+    <button class="tab-btn" data-tab="resultats">RÉSULTATS</button>
+  </div>
+  <div class="tab-ink" id="tab-ink"></div>
+</nav>
+
+<!-- ─────────── TABS ─────────── -->
+<main class="tabs-wrapper">
+
+  <!-- ═══ HISTOIRE ═══ -->
+  <section class="tab-section active" id="tab-histoire">
+    <div class="container">
+
+      <div class="section-header">
+        <h2>L'Origine d'une Légende</h2>
+        <p>Du Chesnay à San Antonio — La trajectoire d'un phénomène unique</p>
+      </div>
+
+      <div class="bio-grid">
+        <div class="bio-card glass">
+          <div class="bio-avatar">
+            <div class="avatar-ring"></div>
+            <div class="avatar-number">1</div>
+          </div>
+          <ul class="bio-list">
+            <li><span class="bio-key">Nom complet</span><span class="bio-val">Victor Wembanyama</span></li>
+            <li><span class="bio-key">Date de naissance</span><span class="bio-val">4 janvier 2004</span></li>
+            <li><span class="bio-key">Lieu de naissance</span><span class="bio-val">Le Chesnay, France</span></li>
+            <li><span class="bio-key">Taille</span><span class="bio-val">2,24 m</span></li>
+            <li><span class="bio-key">Poids</span><span class="bio-val">95 kg</span></li>
+            <li><span class="bio-key">Envergure</span><span class="bio-val">2,45 m</span></li>
+            <li><span class="bio-key">Poste</span><span class="bio-val">Pivot / Ailier Fort</span></li>
+            <li><span class="bio-key">Équipe NBA</span><span class="bio-val">San Antonio Spurs</span></li>
+            <li><span class="bio-key">Numéro</span><span class="bio-val">#1</span></li>
+            <li><span class="bio-key">Nationalité</span><span class="bio-val">Français 🇫🇷</span></li>
+          </ul>
+        </div>
+
+        <div class="timeline">
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2004</div>
+            <div class="tl-card glass">
+              <h3>Naissance à Le Chesnay</h3>
+              <p>Victor Wembanyama naît le 4 janvier 2004 à Le Chesnay, dans les Yvelines. Dès l'enfance, sa taille et sa coordination hors normes attirent l'attention des formateurs de basket-ball.</p>
+            </div>
+          </div>
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2016</div>
+            <div class="tl-card glass">
+              <h3>Intégration du Centre de Formation</h3>
+              <p>À seulement 12 ans, il rejoint le centre de formation de Nanterre 92, où ses qualités explosives — tir longue distance, coordination, puissance athlétique — frappent immédiatement les coachs.</p>
+            </div>
+          </div>
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2020</div>
+            <div class="tl-card glass">
+              <h3>Débuts en Pro A à 16 ans</h3>
+              <p>Il fait ses débuts professionnels avec Nanterre 92 en Pro A à seulement 16 ans. Ses statistiques modestes cachent une technique et une intelligence de jeu déjà extraordinaires pour son âge.</p>
+            </div>
+          </div>
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2021</div>
+            <div class="tl-card glass">
+              <h3>LDLC ASVEL — EuroLeague</h3>
+              <p>Transfert à l'ASVEL, le club de Tony Parker. Il dispute ses premières joutes européennes en EuroLeague. Ses 2.4 contres par match en Pro A imposent sa marque comme défenseur d'élite.</p>
+            </div>
+          </div>
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2022</div>
+            <div class="tl-card glass">
+              <h3>MVP Pro A &amp; Metropolitans 92</h3>
+              <p>Wembanyama rejoint les Metropolitans 92 (Boulogne-Levallois) et explose en Pro A : 21.6 PPG, 10.4 RPG, 2.9 BPG. Il est nommé MVP du championnat français et attire toute l'attention de la NBA.</p>
+            </div>
+          </div>
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2023</div>
+            <div class="tl-card glass">
+              <h3>Draft #1 — San Antonio Spurs</h3>
+              <p>Le 22 juin 2023, Victor Wembanyama est choisi en <strong>1ère position</strong> de la Draft NBA par les San Antonio Spurs. LeBron James déclare : <em>"Wemby est une créature unique."</em> L'hégémonie débute.</p>
+            </div>
+          </div>
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2024</div>
+            <div class="tl-card glass">
+              <h3>Rookie historique — All-Star Titulaire</h3>
+              <p>Saison rookie légendaire : 21.4 PPG · 10.6 RPG · 3.6 BPG. Seul rookie titulaire au All-Star Game depuis LeBron. Il remporte le trophée de Meilleur Rookie NBA à l'unanimité.</p>
+            </div>
+          </div>
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2025</div>
+            <div class="tl-card glass">
+              <h3>Ascension vers les sommets</h3>
+              <p>Saison sophomore élite : 25.4 PPG · 10.7 RPG · 3.8 BPG. Match à 50 points, match à 10 contres. L'équipe des Spurs se reconstruit autour de lui. La franchise retrouve le chemin des playoffs.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="career-chart-section glass">
+        <h3>Progression de Carrière</h3>
+        <canvas id="careerChart" height="100"></canvas>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ PALMARÈS ═══ -->
+  <section class="tab-section" id="tab-palmares">
+    <div class="container">
+      <div class="section-header">
+        <h2>Palmarès</h2>
+        <p>Titres, trophées et distinctions d'une carrière déjà hors-norme</p>
+      </div>
+      <div class="palmares-grid" id="palmares-grid">
+        <!-- injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ RECORDS ═══ -->
+  <section class="tab-section" id="tab-records">
+    <div class="container">
+      <div class="section-header">
+        <h2>Records &amp; Faits Marquants</h2>
+        <p>Des chiffres qui redéfinissent les standards de la NBA</p>
+      </div>
+
+      <div class="radar-section glass">
+        <h3>Profil Statistique 2024-25</h3>
+        <canvas id="radarChart" height="120"></canvas>
+      </div>
+
+      <div class="records-grid" id="records-grid">
+        <!-- injected by JS -->
+      </div>
+
+      <div class="season-compare glass">
+        <h3>Comparaison par Saison</h3>
+        <canvas id="compareChart" height="90"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ RÉSULTATS ═══ -->
+  <section class="tab-section" id="tab-resultats">
+    <div class="container">
+      <div class="section-header">
+        <h2>Tous les Matchs NBA</h2>
+        <p>Résultats, statistiques détaillées match par match</p>
+      </div>
+
+      <!-- Season selector + filters -->
+      <div class="results-toolbar glass">
+        <div class="season-tabs">
+          <button class="season-btn active" data-season="2024-25">2024-25</button>
+          <button class="season-btn" data-season="2023-24">2023-24</button>
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn active" data-filter="ALL">Tous</button>
+          <button class="filter-btn" data-filter="W">Victoires</button>
+          <button class="filter-btn" data-filter="L">Défaites</button>
+        </div>
+        <div class="search-wrap">
+          <input type="text" id="opp-search" placeholder="Rechercher un adversaire…" />
+        </div>
+      </div>
+
+      <!-- Summary row -->
+      <div class="results-summary" id="results-summary">
+        <div class="rs-item"><span class="rs-val" id="rs-gp">—</span><span class="rs-lbl">Matchs</span></div>
+        <div class="rs-item win"><span class="rs-val" id="rs-w">—</span><span class="rs-lbl">Victoires</span></div>
+        <div class="rs-item loss"><span class="rs-val" id="rs-l">—</span><span class="rs-lbl">Défaites</span></div>
+        <div class="rs-item"><span class="rs-val" id="rs-ppg">—</span><span class="rs-lbl">Moy. PTS</span></div>
+        <div class="rs-item"><span class="rs-val" id="rs-rpg">—</span><span class="rs-lbl">Moy. REB</span></div>
+        <div class="rs-item"><span class="rs-val" id="rs-bpg">—</span><span class="rs-lbl">Moy. BLK</span></div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-scroll">
+        <table class="results-table" id="results-table">
+          <thead>
+            <tr>
+              <th data-sort="date">DATE</th>
+              <th>ADV</th>
+              <th data-sort="wl">RÉS</th>
+              <th>SCORE</th>
+              <th data-sort="pts">PTS</th>
+              <th data-sort="reb">REB</th>
+              <th>AST</th>
+              <th data-sort="blk">BLK</th>
+              <th>STL</th>
+              <th>FG%</th>
+              <th>3P%</th>
+              <th>FT%</th>
+              <th>+/-</th>
+            </tr>
+          </thead>
+          <tbody id="results-tbody">
+            <!-- injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ─────────── FOOTER ─────────── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-name">WEMBANYAMA <span>#1</span></p>
+    <p class="footer-sub">Données mises à jour automatiquement via l'API NBA · Saison en cours</p>
+    <p class="footer-copy">© 2025 — Fan site non officiel</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

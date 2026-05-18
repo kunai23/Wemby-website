@@ -1,10 +1,12 @@
 name: Mise à jour stats Wembanyama
 
 on:
-  schedule:
-    - cron: '0 7 * * *'   # 9h Paris
-    - cron: '0 22 * * *'  # 22h Paris (post-match)
+  # Déclenché manuellement après avoir poussé de nouvelles données
   workflow_dispatch:
+  # Ou automatiquement si data/wemby_stats.json est modifié sur main
+  push:
+    branches: [main]
+    paths:    [data/wemby_stats.json]
 
 permissions:
   contents: write
@@ -13,32 +15,18 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  fetch-and-commit:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Installer dépendances
-        run: pip install requests
-
-      - name: Récupérer les stats Wembanyama
-        env:
-          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
-        run: python scripts/fetch_stats.py
-
-      - name: Commit & push si nouvelles données
+      - name: Vérification du fichier de stats
         run: |
-          git config user.name  "wemby-bot"
-          git config user.email "wemby-bot@noreply.github.com"
-          git diff --quiet data/wemby_stats.json || (
-            git add data/wemby_stats.json &&
-            git commit -m "auto: stats Wembanyama $(date -u +'%Y-%m-%d %H:%M UTC')" &&
-            git push
-          )
+          python3 -c "
+          import json
+          with open('data/wemby_stats.json') as f:
+              d = json.load(f)
+          for s, g in d.get('game_logs', {}).items():
+              print(f'{s}: {len(g)} matchs')
+          print('last_updated:', d.get('last_updated','?'))
+          "

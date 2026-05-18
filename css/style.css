@@ -873,6 +873,152 @@ body {
 }
 
 /* ════════════════════════════════
+   PLAYOFFS BRACKET
+════════════════════════════════ */
+.bk-conf-headers {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+.bk-conf-lbl {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--gray);
+  text-transform: uppercase;
+}
+.bk-finals-lbl { color: var(--gold); }
+
+.bk-scroll { overflow-x: auto; padding-bottom: 8px; }
+
+.bk-grid {
+  display: flex;
+  gap: 6px;
+  height: 500px;
+  min-width: 820px;
+  padding-top: 28px;
+  position: relative;
+}
+.bk-col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  position: relative;
+}
+.bk-col::before {
+  content: attr(data-label);
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: 1.5px;
+  color: var(--gray);
+  white-space: nowrap;
+  opacity: 0.7;
+}
+.bk-finals-col { flex: 1.1; }
+
+.bk-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.bk-card {
+  width: 100%;
+  max-width: 132px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 7px 9px;
+}
+.bk-card.bk-done { border-color: rgba(110,50,220,0.2); }
+.bk-card.bk-live {
+  border-color: var(--purple-light);
+  box-shadow: 0 0 18px rgba(168,85,247,0.35);
+}
+.bk-card.bk-cf { max-width: 136px; }
+
+.bk-team {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 0;
+}
+.bk-abbr {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  min-width: 26px;
+  color: var(--text);
+}
+.bk-name {
+  font-size: 9px;
+  color: var(--gray);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bk-score {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 14px;
+  text-align: right;
+  color: var(--gray);
+}
+.bk-team.bk-w .bk-abbr { color: var(--white); }
+.bk-team.bk-w .bk-score { color: var(--green); }
+.bk-team.bk-l            { opacity: 0.45; }
+.bk-team.bk-spurs .bk-abbr { color: var(--purple-light) !important; }
+.bk-team.bk-w.bk-spurs .bk-score { color: var(--purple-light); }
+
+.bk-sep { height: 1px; background: var(--border); margin: 3px 0; }
+
+.bk-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: var(--purple-light);
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+.bk-badge.bk-result {
+  color: var(--gray);
+  justify-content: center;
+}
+.pulse-dot.bk-pulse { width: 5px; height: 5px; min-width: 5px; }
+
+.bk-finals-card {
+  width: 100%;
+  max-width: 132px;
+  background: var(--card);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 18px 12px;
+  text-align: center;
+  box-shadow: 0 0 24px rgba(255,215,0,0.15);
+}
+.bk-finals-trophy { font-size: 26px; margin-bottom: 8px; }
+.bk-finals-title {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.bk-finals-sub { font-size: 10px; color: var(--gray); }
+
+/* ════════════════════════════════
    RESPONSIVE
 ════════════════════════════════ */
 @media (max-width: 900px) {

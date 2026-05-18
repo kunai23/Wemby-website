@@ -109,8 +109,8 @@
       "fg_pct": 51.2,
       "fg3_pct": 34.9,
       "ft_pct": 82.7,
-      "wins": 50,
-      "losses": 14
+      "wins": 62,
+      "losses": 20
     }
   ],
   "palmares": [
@@ -4026,11 +4026,11 @@
       },
       {
         "season": "2025-26",
-        "wins": 50,
-        "losses": 14,
+        "wins": 62,
+        "losses": 20,
         "with_wemby": {
-          "wins": 48,
-          "losses": 12,
+          "wins": 60,
+          "losses": 18,
           "gp": 60
         },
         "without_wemby": {
@@ -4040,8 +4040,8 @@
         },
         "ppg": 119.5,
         "opp_ppg": 108.3,
-        "conf_rank": 2,
-        "note": "Finale de conférence Ouest — en cours"
+        "conf_rank": 1,
+        "note": "Meilleur bilan de la conférence Ouest — Finale de conférence"
       }
     ]
   }

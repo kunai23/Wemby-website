@@ -94,6 +94,23 @@
       "ft_pct": 82.0,
       "wins": 34,
       "losses": 34
+    },
+    {
+      "season": "2025-26",
+      "team": "San Antonio Spurs",
+      "league": "NBA",
+      "gp": 64,
+      "mpg": 0,
+      "ppg": 25.0,
+      "rpg": 11.5,
+      "apg": 3.1,
+      "bpg": 3.1,
+      "spg": 1.0,
+      "fg_pct": 51.2,
+      "fg3_pct": 34.9,
+      "ft_pct": 82.7,
+      "wins": 50,
+      "losses": 14
     }
   ],
   "palmares": [

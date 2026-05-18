@@ -150,7 +150,9 @@ function updateLastUpdate() {
 
 /* ── HERO STATS ── */
 function renderHero() {
-  const season = DATA.career_averages.find(s => s.season === '2024-25') || DATA.career_averages.at(-1);
+  // Toujours afficher la saison la plus récente avec des données NBA
+  const nbaSeasons = DATA.career_averages.filter(s => s.league === 'NBA');
+  const season = nbaSeasons.at(-1);
   if (!season) return;
 
   animateVal('hs-ppg', season.ppg);

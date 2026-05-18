@@ -91,6 +91,7 @@
     if (activeBtn) moveInk(activeBtn);
     if (name === 'resultats' && !window._resultsInited) initResults();
     if (name === 'playoffs') renderPlayoffs();
+    if (name === 'spurs') renderSpurs();
   }
 
   btns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
@@ -614,6 +615,142 @@ function renderPlayoffs() {
       </div>
     </div>
   `;
+}
+
+/* ════════════════════════════════
+   SPURS
+════════════════════════════════ */
+let _spursinited = false;
+
+function renderSpurs() {
+  if (_spursinited || !DATA || !DATA.spurs) return;
+  _spursinited = true;
+
+  renderSpursRoster();
+  renderSpursBilan();
+  renderSpursBilanChart();
+}
+
+function renderSpursRoster() {
+  const el = document.getElementById('spurs-roster');
+  if (!el) return;
+  const roster = DATA.spurs.roster;
+  const wemby  = roster.find(p => p.highlight);
+  const others = roster.filter(p => !p.highlight);
+
+  el.innerHTML = `
+    <div class="sr-wemby-card">
+      <div class="sr-wemby-num">#${wemby.number}</div>
+      <div class="sr-wemby-info">
+        <div class="sr-wemby-name">${wemby.name}</div>
+        <div class="sr-wemby-pos">${wemby.pos}</div>
+      </div>
+      <div class="sr-wemby-stats">
+        <div class="sr-stat"><span class="sr-val">${wemby.ppg}</span><span class="sr-lbl">PPG</span></div>
+        <div class="sr-stat"><span class="sr-val">${wemby.rpg}</span><span class="sr-lbl">RPG</span></div>
+        <div class="sr-stat"><span class="sr-val">${wemby.apg}</span><span class="sr-lbl">APG</span></div>
+        <div class="sr-stat"><span class="sr-val">${wemby.bpg}</span><span class="sr-lbl">BPG</span></div>
+      </div>
+    </div>
+    <div class="sr-grid">
+      ${others.map(p => `
+        <div class="sr-player-card">
+          <span class="sr-num">#${p.number}</span>
+          <div class="sr-info">
+            <div class="sr-pname">${p.name}</div>
+            <div class="sr-ppos">${p.pos}</div>
+          </div>
+          <div class="sr-mini-stats">
+            <span>${p.ppg} PPG</span>
+            <span>${p.rpg} RPG</span>
+            <span>${p.apg} APG</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderSpursBilan() {
+  const el = document.getElementById('spurs-bilan');
+  if (!el) return;
+  const records = DATA.spurs.season_records;
+
+  el.innerHTML = `<div class="sb-cards">
+    ${records.map(r => {
+      const total = r.wins + r.losses;
+      const pct   = (r.wins / total * 100).toFixed(0);
+      const diff  = (r.ppg - r.opp_ppg).toFixed(1);
+      const diffCls = diff >= 0 ? 'sb-pos' : 'sb-neg';
+      const wwPct  = (r.with_wemby.wins / r.with_wemby.gp * 100).toFixed(0);
+      const woPct  = (r.without_wemby.wins / r.without_wemby.gp * 100).toFixed(0);
+      return `
+      <div class="sb-card glass">
+        <div class="sb-season">${r.season}</div>
+        <div class="sb-record">${r.wins}–${r.losses} <span class="sb-pct">(${pct}%)</span></div>
+        <div class="sb-rank">#${r.conf_rank} Conférence Ouest</div>
+        <div class="sb-note">${r.note}</div>
+        <div class="sb-ppg-row">
+          <span class="sb-off">${r.ppg} PPG OFF</span>
+          <span class="sb-diff ${diffCls}">${diff >= 0 ? '+' : ''}${diff} NET</span>
+          <span class="sb-def">${r.opp_ppg} PPG DEF</span>
+        </div>
+        <div class="sb-wv">
+          <div class="sb-wv-row">
+            <span class="sb-wv-lbl">✅ Avec Victor (${r.with_wemby.gp} matchs)</span>
+            <span class="sb-wv-val">${r.with_wemby.wins}–${r.with_wemby.losses} <em>${wwPct}%</em></span>
+          </div>
+          <div class="sb-wv-row">
+            <span class="sb-wv-lbl">❌ Sans Victor (${r.without_wemby.gp} matchs)</span>
+            <span class="sb-wv-val">${r.without_wemby.wins}–${r.without_wemby.losses} <em>${woPct}%</em></span>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderSpursBilanChart() {
+  const canvas = document.getElementById('spursBilanChart');
+  if (!canvas || !DATA.spurs) return;
+  const records = DATA.spurs.season_records;
+  const labels  = records.map(r => r.season);
+  const wWith   = records.map(r => parseFloat((r.with_wemby.wins / r.with_wemby.gp * 100).toFixed(1)));
+  const wWithout= records.map(r => parseFloat((r.without_wemby.wins / r.without_wemby.gp * 100).toFixed(1)));
+
+  new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Win% avec Victor', data: wWith,    backgroundColor: 'rgba(168,85,247,0.75)', borderRadius: 6 },
+        { label: 'Win% sans Victor', data: wWithout, backgroundColor: 'rgba(100,116,139,0.5)', borderRadius: 6 },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: '#9ca3af', font: { family: 'Inter', size: 11 }, boxWidth: 14 } },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.dataset.label} : ${ctx.parsed.y}%` },
+          backgroundColor: 'rgba(12,6,30,0.95)',
+          borderColor: 'rgba(110,50,220,0.4)',
+          borderWidth: 1,
+          titleColor: '#c8b8ff',
+          bodyColor: '#d1d5db',
+        },
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { family: 'Orbitron', size: 9 } } },
+        y: {
+          min: 0, max: 100,
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          ticks: { color: '#9ca3af', font: { size: 10 }, callback: v => v + '%' },
+          title: { display: true, text: 'Win %', color: '#6b7280', font: { size: 10 } },
+        },
+      },
+    },
+  });
 }
 
 /* ── Boot ── */

@@ -1038,3 +1038,207 @@ body {
   .results-summary { gap: 8px; }
   .rs-item { min-width: 60px; }
 }
+
+/* ════════════════════════════════
+   SPURS TAB
+════════════════════════════════ */
+.spurs-sub {
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--purple-light);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+/* ── Roster ── */
+.spurs-roster-section { padding: 28px; margin-bottom: 24px; }
+
+.sr-wemby-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(0,212,255,0.06));
+  border: 1px solid rgba(168,85,247,0.4);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.sr-wemby-num {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--purple-light);
+  min-width: 60px;
+  text-align: center;
+}
+.sr-wemby-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--white);
+  letter-spacing: 1px;
+}
+.sr-wemby-pos {
+  font-size: 11px;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+.sr-wemby-stats {
+  display: flex;
+  gap: 24px;
+  margin-left: auto;
+}
+.sr-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.sr-val {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--purple-light);
+}
+.sr-lbl { font-size: 9px; color: var(--gray); letter-spacing: 1px; }
+
+.sr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+.sr-player-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color 0.2s;
+}
+.sr-player-card:hover { border-color: rgba(168,85,247,0.3); }
+.sr-num {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--purple-light);
+  min-width: 32px;
+}
+.sr-info { flex: 1; }
+.sr-pname { font-size: 13px; color: var(--text); font-weight: 500; }
+.sr-ppos  { font-size: 10px; color: var(--cyan); letter-spacing: 1px; margin-top: 1px; }
+.sr-mini-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--gray);
+}
+
+/* ── Bilan ── */
+.spurs-bilan-section { padding: 28px; margin-bottom: 24px; }
+.sb-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.sb-card {
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sb-season {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+}
+.sb-record {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--white);
+}
+.sb-pct { font-size: 13px; color: var(--gray); font-weight: 400; }
+.sb-rank { font-size: 11px; color: var(--purple-light); }
+.sb-note { font-size: 11px; color: var(--gray); font-style: italic; }
+.sb-ppg-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--gray);
+  background: rgba(255,255,255,0.03);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-top: 4px;
+}
+.sb-diff { font-weight: 700; font-family: var(--font-display); font-size: 12px; }
+.sb-pos { color: var(--green); }
+.sb-neg { color: #f87171; }
+.sb-wv { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.sb-wv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--gray);
+}
+.sb-wv-val em { color: var(--purple-light); font-style: normal; margin-left: 6px; }
+.spurs-chart-wrap { margin-top: 8px; }
+
+/* ── Légendaires ── */
+.spurs-legends-section { margin-bottom: 24px; }
+.spurs-titles-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.spurs-title-chip {
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05));
+  border: 1px solid rgba(255,215,0,0.35);
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #ffd700;
+}
+.spurs-legends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.spurs-legend-card {
+  padding: 22px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sl-number {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 900;
+  color: rgba(168,85,247,0.6);
+}
+.sl-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--white);
+  letter-spacing: 1px;
+}
+.sl-title { font-size: 11px; color: var(--cyan); font-style: italic; }
+.sl-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 10px;
+  color: var(--gray);
+  background: rgba(255,255,255,0.03);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+.sl-stats span { white-space: nowrap; }
+.sl-desc { font-size: 12px; color: var(--gray); line-height: 1.6; margin-top: 4px; }

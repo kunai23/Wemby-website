@@ -65,6 +65,7 @@
     <button class="tab-btn" data-tab="records">RECORDS</button>
     <button class="tab-btn" data-tab="resultats">RÉSULTATS</button>
     <button class="tab-btn" data-tab="playoffs">PLAYOFFS</button>
+    <button class="tab-btn" data-tab="spurs">SPURS</button>
   </div>
   <div class="tab-ink" id="tab-ink"></div>
 </nav>
@@ -285,6 +286,84 @@
         <p>Les Spurs de Wembanyama en route vers le titre</p>
       </div>
       <div id="playoff-bracket"></div>
+    </div>
+  </section>
+
+
+  <!-- ═══ SPURS ═══ -->
+  <section class="tab-section" id="tab-spurs">
+    <div class="container">
+
+      <!-- ROSTER -->
+      <div class="section-header">
+        <h2>San Antonio Spurs</h2>
+        <p>L'équipe construite autour d'un extraterrestre</p>
+      </div>
+
+      <div class="spurs-roster-section glass">
+        <h3 class="spurs-sub">Roster 2025-26</h3>
+        <div id="spurs-roster"></div>
+      </div>
+
+      <!-- BILAN -->
+      <div class="spurs-bilan-section glass">
+        <h3 class="spurs-sub">Bilan depuis l'arrivée de Victor</h3>
+        <div id="spurs-bilan"></div>
+        <div class="spurs-chart-wrap">
+          <canvas id="spursBilanChart" height="90"></canvas>
+        </div>
+      </div>
+
+      <!-- LÉGENDAIRES -->
+      <div class="spurs-legends-section">
+        <h3 class="spurs-sub">Les Légendaires</h3>
+        <div class="spurs-titles-row">
+          <div class="spurs-title-chip">🏆 1999</div>
+          <div class="spurs-title-chip">🏆 2003</div>
+          <div class="spurs-title-chip">🏆 2005</div>
+          <div class="spurs-title-chip">🏆 2007</div>
+          <div class="spurs-title-chip">🏆 2014</div>
+        </div>
+        <div class="spurs-legends-grid">
+          <div class="spurs-legend-card glass">
+            <div class="sl-number">#21</div>
+            <div class="sl-name">Tim Duncan</div>
+            <div class="sl-title">The Big Fundamental</div>
+            <div class="sl-stats">
+              <span>19.0 PPG</span><span>10.8 RPG</span><span>5× Champion</span>
+            </div>
+            <div class="sl-desc">Le meilleur ailier-fort de l'histoire. 19 saisons, 5 titres, 2 MVP. La pierre angulaire de la dynasty Spurs.</div>
+          </div>
+          <div class="spurs-legend-card glass">
+            <div class="sl-number">#9</div>
+            <div class="sl-name">Tony Parker</div>
+            <div class="sl-title">TP</div>
+            <div class="sl-stats">
+              <span>15.5 PPG</span><span>5.6 APG</span><span>4× Champion</span>
+            </div>
+            <div class="sl-desc">Premier Européen MVP des Finales NBA (2007). Meneur élite, champion avec les Spurs pendant 17 saisons.</div>
+          </div>
+          <div class="spurs-legend-card glass">
+            <div class="sl-number">#20</div>
+            <div class="sl-name">Manu Ginobili</div>
+            <div class="sl-title">El Contusion</div>
+            <div class="sl-stats">
+              <span>13.3 PPG</span><span>3.8 APG</span><span>4× Champion</span>
+            </div>
+            <div class="sl-desc">Génie créatif venu d'Argentine. Inventeur du euro-step, symbole du sacrifice et du jeu collectif Spurs.</div>
+          </div>
+          <div class="spurs-legend-card glass">
+            <div class="sl-number">HC</div>
+            <div class="sl-name">Gregg Popovich</div>
+            <div class="sl-title">Coach Pop</div>
+            <div class="sl-stats">
+              <span>1 400+ victoires</span><span>5× Champion</span><span>3× Coach de l'année</span>
+            </div>
+            <div class="sl-desc">L'un des meilleurs entraîneurs de l'histoire du sport. A bâti la dynasty Spurs sur la culture, le collectif et l'humilité.</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 

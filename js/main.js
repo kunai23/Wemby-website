@@ -252,10 +252,20 @@ function renderRadarChart() {
   const season = DATA.career_averages.find(s => s.season === '2025-26') || DATA.career_averages.at(-1);
   const norm = (v, max) => Math.min(10, (v / max) * 10);
 
+  const actualValues = [season.ppg, season.rpg, season.apg, season.bpg, season.spg, season.fg_pct];
+  const suffixes = ['', '', '', '', '', '%'];
+
   new Chart(canvas, {
     type: 'radar',
     data: {
-      labels: ['Pts', 'Rebonds', 'Passes', 'Contres', 'Interceptions', 'FG%'],
+      labels: [
+        ['PTS', season.ppg.toFixed(1)],
+        ['REB', season.rpg.toFixed(1)],
+        ['AST', season.apg.toFixed(1)],
+        ['BLK', season.bpg.toFixed(1)],
+        ['STL', season.spg.toFixed(1)],
+        ['FG%', season.fg_pct.toFixed(1) + '%'],
+      ],
       datasets: [{
         label: '2025-26',
         data: [
@@ -275,7 +285,23 @@ function renderRadarChart() {
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const val = actualValues[ctx.dataIndex];
+              const suf = suffixes[ctx.dataIndex];
+              return ' ' + val.toFixed(1) + suf + ' / match (saison 2025-26)';
+            },
+          },
+          backgroundColor: 'rgba(12,6,30,0.95)',
+          borderColor: 'rgba(110,50,220,0.4)',
+          borderWidth: 1,
+          titleColor: '#c8b8ff',
+          bodyColor: '#d1d5db',
+        },
+      },
       scales: {
         r: {
           min: 0, max: 10,

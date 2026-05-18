@@ -81,7 +81,7 @@ def fetch_gamelog(season):
 
 def main():
     print("=== Mise à jour stats Wembanyama ===\n")
-    data = json.loads(DATA_PATH.read_text())
+    data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
 
     for season in ["2023-24", "2024-25"]:
         try:
@@ -91,7 +91,7 @@ def main():
             print(f"  ✗ Erreur {season}: {e}")
 
     data["last_updated"] = datetime.now(timezone.utc).isoformat()
-    DATA_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+    DATA_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     total = sum(len(g) for g in data["game_logs"].values())
     print(f"\n✓ {total} matchs sauvegardés dans data/wemby_stats.json")

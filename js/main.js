@@ -537,7 +537,7 @@ const PLAYOFF_DATA = {
       { t1: 'OKC', n1: 'Thunder',      s1: 4, t2: 'LAL', n2: 'Lakers',        s2: 0, winner: 'OKC' },
       { t1: 'SAS', n1: 'Spurs',        s1: 4, t2: 'MIN', n2: 'Timberwolves',  s2: 2, winner: 'SAS' },
     ],
-    cf: { t1: 'OKC', n1: 'Thunder', s1: 0, t2: 'SAS', n2: 'Spurs', s2: 0, winner: null, live: true },
+    cf: { t1: 'OKC', n1: 'Thunder', s1: 0, t2: 'SAS', n2: 'Spurs', s2: 1, winner: null, live: true },
   },
   east: {
     r1: [
